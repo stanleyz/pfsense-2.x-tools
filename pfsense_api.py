@@ -111,7 +111,7 @@ class PfSenseAPI( object ):
         else:
             ssl._create_default_https_context = _ssl_context
 
-        conn = HTTPSConnection( self.options['host'], self.options['port'], context = ssl_context )
+        conn = HTTPSConnection( self.options['host'], self.options['port'])
         conn.connect()
         headers = {
             'Host': self.options['host'],
