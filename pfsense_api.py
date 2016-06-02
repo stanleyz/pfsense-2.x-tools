@@ -99,10 +99,17 @@ class PfSenseAPI( object ):
     def call( self, url, method, apiData = dict(), itemData = dict()):
         # Create SSL context first based on if SSL connection should be verified
         import ssl
-        if self.options['ssl_verification']:
-            ssl_context = ssl._create_default_https_context()
+
+        try:
+            if self.options['ssl_verification']:
+                _ssl_context = ssl._create_default_https_context
+            else:
+                _ssl_context = ssl._create_unverified_context
+        except AttributeError:
+            # pass legacy python which doesn't verify https connection
+            pass
         else:
-            ssl_context = ssl._create_unverified_context()
+            ssl._create_default_https_context = _ssl_context
 
         conn = HTTPSConnection( self.options['host'], self.options['port'], context = ssl_context )
         conn.connect()
