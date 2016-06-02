@@ -49,9 +49,17 @@ for section in configFile.sections():
     api['options'] = parsed_options
     api.login()
 
-    crlFile = open(parsed_options['crl'], 'r')
-    crlData = crlFile.read()
-    crlFile.close()
+    if not os.path.isfile(parsed_options['crl']):
+        logger.error('%s does not exist?' % parsed_options['crl'])
+        continue
+    try:
+        crlFile = open(parsed_options['crl'], 'r')
+        crlData = crlFile.read()
+        crlFile.close()
+    except:
+        logger.error("Error while read CRL data from file %s" % parsed_options['crl'])
+        continue
+
     (rc, data, contentType) = api.call( '/system_crlmanager.php', 'POST',
             apiData = { 
               'method': 'existing',
