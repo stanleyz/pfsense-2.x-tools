@@ -8,6 +8,7 @@ from datetime import datetime
 from pfsense_cmdline import PfSenseOptionParser
 from ConfigParser import ConfigParser
 from pfsense_logger import PfSenseLogger as logging
+import os.path
 
 parser = PfSenseOptionParser()
 
@@ -19,8 +20,8 @@ parser.add_option("--overwrite", dest="overwrite", default=False, help="Command 
 
 (options, args) = parser.parse_args()
 
-parser.check_cmd_options( options )
 logger = logging.setupLogger(options.logging)
+parser.check_cmd_options( options )
 
 required_items = ['crl_id', 'crl', 'host', 'username', 'password']
 
@@ -46,11 +47,8 @@ for section in configFile.sections():
     if required_items_missed:
         continue
 
-    api['options'] = parsed_options
-    api.login()
-
     if not os.path.isfile(parsed_options['crl']):
-        logger.error('%s does not exist?' % parsed_options['crl'])
+        logger.error('CRL file %s does not exist?' % parsed_options['crl'])
         continue
     try:
         crlFile = open(parsed_options['crl'], 'r')
@@ -59,6 +57,9 @@ for section in configFile.sections():
     except:
         logger.error("Error while read CRL data from file %s" % parsed_options['crl'])
         continue
+    
+    api['options'] = parsed_options
+    api.login()
 
     (rc, data, contentType) = api.call( '/system_crlmanager.php', 'POST',
             apiData = { 

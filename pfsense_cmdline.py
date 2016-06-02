@@ -42,7 +42,7 @@ class PfSenseOptionParser( OptionParser ):
 
     def __unify_bools(self, options, bool_keys = []):
         for key in bool_keys:
-            if key in options:
+            if key in options and not isinstance(options[key], bool):
                 if options[key].lower() in ('true', 'yes', '1'):
                     options[key] = True
                 elif options[key].lower() in ('false', 'no', '0'):
