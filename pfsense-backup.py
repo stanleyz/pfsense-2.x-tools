@@ -31,7 +31,6 @@ options_cmdline = vars(options).copy()
 del options_cmdline['config']
 del options_cmdline['overwrite']
 
-
 configFile = ConfigParser()
 configFile.read(options.config)
 
@@ -60,16 +59,16 @@ for section in configFile.sections():
     api['options'] = parsed_options
     api.login()
 
-    backupArea = options.area.lower()
+    backupArea = parsed_options['area'].lower()
     if backupArea == 'all':
             backupArea = ''
     apiData = { 
             'backuparea': backupArea,
             'Submit': 'Download configuration'
     }
-    if options.noRRD:
+    if parsed_options['noRRD']:
         apiData[ 'donotbackuprrd' ] = 'yes'
-    if options.noPackages:
+    if parsed_options['noPackages']:
         apiData[ 'nopackages' ] = 'yes'
 
     (rc, data, contentType) = api.call( '/diag_backup.php', 'POST',
@@ -81,7 +80,7 @@ for section in configFile.sections():
         logger.error('Error: API parameters invalid (no XML file returned)')
         continue
 
-    if options.output:
+    if parsed_options['output']:
         outputFile = open( parsed_options['output'], 'w' )
         outputFile.write( data )
         outputFile.close()
