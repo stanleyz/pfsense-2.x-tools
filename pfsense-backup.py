@@ -19,6 +19,7 @@ parser.add_option('--no-packages', dest='noPackages', action='store_true', help=
 parser.add_option("--ssl_verification", dest="ssl_verification", help="Whether SSL should be verified or not, valid values are yes/no, true/false, 1/0", default=True, metavar="yes/no")
 parser.add_option("--overwrite", dest="overwrite", default=False, help="Command line options will overwrite same settings in config file", action="store_true")
 parser.add_option('-o', '--output', dest='output', help='Output file (default: stdout)' )
+parser.add_option('--output-dir', dest='output_dir', help='Directory to store backup files')
 
 (options, args) = parser.parse_args()
 
@@ -80,10 +81,16 @@ for section in configFile.sections():
         logger.error('Error: API parameters invalid (no XML file returned)')
         continue
 
+    dest_file = None
     if parsed_options['output']:
-        outputFile = open( parsed_options['output'], 'w' )
+        dest_file = parsed_options['output']
+    elif parsed_options['output_dir']:
+        dest_file = "%s/%s.xml" % (parsed_options['output_dir'], section)
+
+    if dest_file:
+        outputFile = open( dest_file, 'w' )
         outputFile.write( data )
         outputFile.close()
-        logger.info("Wrote backup of %s to file %s" % (section, parsed_options['output']))
+        logger.info("Wrote backup of %s to file %s" % (section, dest_file))
     else:
         print data
